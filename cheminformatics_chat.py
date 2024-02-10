@@ -20,10 +20,10 @@ coder = autogen.AssistantAgent(
 
 plotter = autogen.AssistantAgent(
     name="cheminformatics_plotter",
-    system_message="You have the ability to plot chemical properties. Suggest installing dependencies for plotting.",
+    system_message="You have the ability to write python code which can plot chemical data. You may not use any functions or tools as you have not been provided any. Suggest installing dependencies for plotting.",
     llm_config=llm_config,
-    description="An Agent that is proficient at visualizing cheminformatics data.",
-    human_input_mode="NEVER",
+    description="An Agent that is proficient at writing python code for visualizing cheminformatics data.",
+    human_input_mode="TERMINATE",
 )
 
 # create a UserProxyAgent instance named "user_proxy"
@@ -52,7 +52,7 @@ cheminformatics_workflow_manager = autogen.AssistantAgent(
     system_message="You are the manager of a cheminformatics drug discovery workflow in which lipinsky descriptors will be calculated for a set of chemical compounds. You help by gathering context about the workflow from the user and efficiently guiding them through the workflow from start to finish, but you do not make tool call suggestions. After data has been saved to a csv by other agents, remind the user that the data is available for them to peruse before moving to the next step in the workflow.",
     llm_config=llm_config,
     description="The manager of a cheminformatics workflow execution. This agent guides the user through the process of data collection and analysis.",
-    human_input_mode="NEVER",
+    human_input_mode="TERMINATE",
 )
 
 # define functions according to the function description
@@ -78,7 +78,7 @@ autogen.agentchat.register_function(
 )
 
 autogen.agentchat.register_function(
-    agent_functions.calculate_lipinksi_descriptors,
+    agent_functions.calculate_lipinski_descriptors,
     caller=coder,
     executor=user_proxy_for_running_code,
     description="Calculate lipinsky descriptors for a protein target from a locally saved csv file of protein specific activity data. Saves the results to a file with the format {target_id}_{activity_type}_lipinski.csv.",
@@ -88,6 +88,7 @@ autogen.agentchat.register_function(
 @user_proxy_for_running_code.register_for_execution()
 @cheminformatics_workflow_manager.register_for_llm()
 @coder.register_for_llm(description="terminate the group chat")
+@plotter.register_for_llm(description="terminate the group chat")
 def terminate_group_chat(message: Annotated[str, "Message to be sent to the group chat."]) -> str:
     return f"[GROUPCHAT_TERMINATE] {message}"
 
@@ -119,8 +120,7 @@ async def main():
     1) Select a protein target.
     2) Using the chosen protein target, get chembl data on chemical compounds that have been screened against the target protein.
     3) Calculate the Lipinski descriptors for the compound.
-    4) Perform additional analysis on the compound.
-    5) Terminate the chat.
+    4) Visualize the lipinski data.
     """
 
     with Cache.disk():
@@ -128,6 +128,11 @@ async def main():
             manager,
             message=message
         )
+
+    # Write chat history to a text file
+    with open("chat_history.txt", "w") as file:
+        for message in groupchat.messages:
+            file.write(f"{message}\n")
 
 if __name__ == "__main__":
     asyncio.run(main())

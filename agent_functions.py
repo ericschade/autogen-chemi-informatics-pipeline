@@ -152,7 +152,7 @@ async def generate_activity_data(chembl_id:str, standard_type:str='IC50') -> pd.
     return summarize_df(df, file_name)
 
 # @chat_friendly_df_summary
-async def calculate_lipinksi_descriptors(activity_file: str) -> pd.DataFrame:
+async def calculate_lipinski_descriptors(activity_file: str) -> pd.DataFrame:
     """
     Calculate Lipinski descriptors for compounds based on their SMILES strings.
 
