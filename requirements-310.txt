@@ -1,0 +1,6 @@
+padelpy==0.1.14
+pandas==2.2.0
+rdkit==2023.9.4
+chembl_webresource_client==0.10.8
+mordred==1.2.0
+pyautogen==0.2.12

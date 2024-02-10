@@ -1,2 +1,4 @@
 venv/
 venv-310/
+__pycache__/
+.cache/
