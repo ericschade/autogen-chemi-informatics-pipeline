@@ -119,8 +119,9 @@ async def main():
     Help a user through the following cheminformatics workflow:
     1) Select a protein target.
     2) Using the chosen protein target, get chembl data on chemical compounds that have been screened against the target protein.
-    3) Calculate the Lipinski descriptors for the compound.
-    4) Visualize the lipinski data.
+    3) Calculate the Lipinski descriptors for the compound and save the result to a csv file.
+    4) Visualize the lipinski data and save the results to a file.
+    5) Create a machine learning model based on the lipinski data.
     """
 
     with Cache.disk():
